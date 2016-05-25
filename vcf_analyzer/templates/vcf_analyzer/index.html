@@ -1,0 +1,39 @@
+{% load staticfiles %}
+<html>
+
+<head>
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css"> 
+</head>
+
+<body>
+	<form method='POST'>
+	{% csrf_token %}
+	Individual: <input type="text" name="name" placeholder="Name"> <br/>
+	<input class="btn btn-default" type="submit" value="Analyze">
+	</form>
+	
+	{% if name %}
+		<table class="table table-striped">
+			<tr>
+				<td><strong>Location:</strong></td>
+				<td><strong>RsID:</strong></td>
+				<td><strong>Genotype:</strong></td>
+				<td><strong>Phenotype:</strong></td>
+			</tr>
+		{% if SNP_dict %}
+			{% for location, information  in SNP_dict.iteritems %}
+				<tr>
+					<td> {{ location }} </td>
+					<td> {{ information.0 }}
+					<td> {{ information.1 }} </td>
+					<td> {{ information.2 }} </td>
+				</tr>
+			{% endfor %}
+		{% endif %}
+		</table>
+	{% endif %}
+
+</body>		
+</html>
