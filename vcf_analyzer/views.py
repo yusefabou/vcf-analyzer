@@ -2,7 +2,7 @@
 import subprocess
 
 #Third-Party
-from functions import extract_SNPs
+from functions import rsID_to_info, output_SNP_database
 
 #Django
 from django.shortcuts import render
@@ -15,6 +15,7 @@ def index(request):
 	template = loader.get_template('vcf_analyzer/index.html')
 	SNP_dict = ''
 	name = ''
+	rsID = ''
 
 	#Check if the submit button was pressed
 	if request.method == 'POST':
@@ -23,9 +24,12 @@ def index(request):
 		if not request.POST.get('name'):
 			return HttpResponse(template.render({}, request))
 		else:
-		#Get the name of individual if name was submitted
+			#Get the name of individual and rsID
 			name = request.POST.get('name').strip()
-			SNP_dict = extract_SNPs(name)
+			rsID = request.POST.get('rsID').strip().lower()
+
+			#Retrieve SNP information given rsID and individual
+			SNP_dict = rsID_to_info(rsID, name)
 
 	context = {
 	'SNP_dict': SNP_dict,

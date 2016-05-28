@@ -8,16 +8,19 @@
 </head>
 
 <body>
-	<form method='POST'>
-	{% csrf_token %}
-	Individual: <input type="text" name="name" placeholder="Name"> <br/>
-	<input class="btn btn-default" type="submit" value="Analyze">
-	</form>
+	<center>
+		<form method='POST'>
+		{% csrf_token %}
+		Individual: <input type="text" name="name" placeholder="Name"> <br/>
+		rsID: <input type="text" name='rsID'> <br/>
+		<input class="btn btn-default" type="submit" value="Analyze">
+		</form>
+	</center>
 	
 	{% if name %}
 		<table class="table table-striped">
 			<tr>
-				<td><strong>Location:</strong></td>
+				<td><strong>chr#:bp#</strong></td>
 				<td><strong>RsID:</strong></td>
 				<td><strong>Genotype:</strong></td>
 				<td><strong>Phenotype:</strong></td>
