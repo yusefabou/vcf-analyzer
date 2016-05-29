@@ -5,7 +5,6 @@ import os
 #Third-Party
 from BCBio import GFF
 from BCBio.GFF import GFFExaminer
-import gffutils
 from wikitools import wiki, category, page
 
 #Get all SNPs from all vcf files
