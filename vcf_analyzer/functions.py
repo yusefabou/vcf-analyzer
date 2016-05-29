@@ -67,13 +67,12 @@ def rsID_to_info(rsID, individual):
 			line = line.strip().split('\t')
 			if line[0] == 'CHROM':
 				continue
-			print line[0]
 			location = chromosome + ':' + str(line[1])
-			SNP_dict[location] = []
-			SNP_dict[location].append(rsID)
+			SNP_dict[rsID] = []
+			SNP_dict[rsID].append(location)
 			genotype = get_genotype(str(line[4]),str(line[5]))
-			SNP_dict[location].append(genotype)
-			SNP_dict[location].append('Phenotype to be here')
+			SNP_dict[rsID].append(genotype)
+			SNP_dict[rsID].append('Phenotype to be here')
 		if len(SNP_dict) == 1:
 			break
 	return SNP_dict
@@ -99,17 +98,42 @@ def get_genotype(allele_freq1, allele_freq2):
 	elif float(second_geno[1]) == 1.0:
 		second_geno = str(second_geno[0]) + str(second_geno[0])
 	return first_geno + second_geno
-	
-def output_SNP_database(filename):
-	handle = open(filename)
+
+#Get phenotype of SNP
+def genotype_to_phenotype(rsID, genotype):
+	#Access the API for SNPedia.com
 	site = wiki.Wiki("http://bots.snpedia.com/api.php")
-	snp = "rs7412"
-	pagehandle = page.Page(site,snp)
-	snp_page = pagehandle.getWikiText()
-	print snp_page
-	# for rec in GFF.parse(handle):
-	# 	pprint(rec)[0]
-	# feature = rec.features[0]
-	# 	qualifiers = feature.qualifiers
+
+	#Set up proper rsID and page name to search for
+	rsID = rsID[0].upper() + rsID[1:]
+	pagename = rsID + '(' + genotype[0] + ';' + genotype[1] + ')'
+
+	#Retrieve text from page name
+	pageobj = page.Page(site, pagename)
+	#try:
+	pagetext = pageobj.getWikiText()
+
+	#Try switching allele position if request did not work
+	#Not handling errors correctly
+	# except NoPage:
+	# 	pagename = rsID + '(' + genotype[1] + ';' + genotype[0] + ')'
+	# 	pageobj = page.Page(site, pagename)
+	# 	pagetext = pageobj.getWikiText()
+
+	#Get summary and description of SNP
+	pagetext = pagetext.split('}}')
+	print pagetext
+
+	description = ' '.join(text for text in pagetext[1:]).strip().replace('{{', '')
+	pagetext = pagetext[0].split('|')
+	summary = ''
+	for line in pagetext:
+		if line.split('=')[0] == 'summary':
+			summary = line.split('=')[1]
+	return (description, summary)
+
+
+
+
 
 
