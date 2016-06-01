@@ -6,7 +6,7 @@ Parameters as interpreted:
 	--gzvcf vcf_analyzer/vcf_files/CMS_nonCMS_chrX.annotated.phased.vcf.gz
 	--freq
 	--stdout
-	--snp rs1805007
+	--snp rs1356733
 	--indv 52-AA
 
 Using zlib version: 1.2.5
@@ -15,4 +15,4 @@ After filtering, kept 1 out of 20 Individuals
 Outputting Frequency Statistics...
 After filtering, kept 0 out of a possible 145481 Sites
 No data left for analysis!
-Run Time = 1.00 seconds
+Run Time = 0.00 seconds

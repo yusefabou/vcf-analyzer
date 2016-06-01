@@ -2,7 +2,7 @@
 import subprocess
 
 #Third-Party
-from functions import rsID_to_info, genotype_to_phenotype
+from functions import rsID_to_info, genotype_to_phenotype, get_stats
 
 #Django
 from django.shortcuts import render

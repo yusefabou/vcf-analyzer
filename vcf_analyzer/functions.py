@@ -10,10 +10,7 @@ from wikitools import wiki, category, page
 #Get all SNPs from all vcf files
 def extract_SNPs(individual):
 	#Creates a list of all possible chromosome identifiers
-	chromosomes = []
-	for i in xrange(1, 23):
-		chromosomes.append(str(i))
-	chromosomes.append('X')
+	chromosomes = chromosome_list()
 
 	#Parses each chromosomal vcf file using vcftools
 	#Note: Chromosome list limited to first chromosome for testing purposes
@@ -44,24 +41,20 @@ def extract_SNPs(individual):
 				break
 	return SNP_dict
 
-#Get genotype from rsID, (later to also retrieve phenotype)
+#Create dictionary of SNP information from rsID
 def rsID_to_info(rsID, individual):
 	#Creates a list of all possible chromosome identifiers
-	chromosomes = []
-	for i in xrange(1, 23):
-		chromosomes.append(str(i))
-	chromosomes.append('X')
+	chromosomes = chromosome_list()
 
 	#Parses each chromosomal vcf file using vcftools to search for SNP given rsID
-	individual_option = '--indv ' + individual
 	SNP_dict = {}
 	for chromosome in chromosomes:
 		vcf_file = 'vcf_analyzer/vcf_files/CMS_nonCMS_chr' + str(chromosome) + '.annotated.phased.vcf.gz'
 		output_object = subprocess.Popen(['vcftools', '--gzvcf', vcf_file, '--snp', rsID, '--freq', '--indv', str(individual), '-c'], stdout=subprocess.PIPE)
 		
 		#Creates a dictionary of SNP information
-		#Key: chr#:bp
-		#Values: [0]: RsID, [1]: Genotype, [2]: Phenotype
+		#Key: rsID
+		#Values: [0]: chr#:bp#, [1]: Genotype, [2]: Phenotype
 		for line in output_object.stdout:
 			line = line.strip().split('\t')
 			if line[0] == 'CHROM':
@@ -75,6 +68,14 @@ def rsID_to_info(rsID, individual):
 		if len(SNP_dict) == 1:
 			break
 	return SNP_dict
+
+#Creates a list of all possible chromosome identifiers
+def chromosome_list():
+	chromosomes = []
+	for i in xrange(1, 23):
+		chromosomes.append(str(i))
+	chromosomes.append('X')
+	return chromosomes
 
 #Get genotype of individual from allele frequency
 def get_genotype(allele_freq1, allele_freq2):
@@ -121,7 +122,6 @@ def genotype_to_phenotype(rsID, genotype):
 
 	#Get summary and description of SNP
 	pagetext = pagetext.split('}}')
-	print pagetext
 
 	description = ' '.join(text for text in pagetext[1:]).strip().replace('{{', '')
 	pagetext = pagetext[0].split('|')
@@ -130,6 +130,42 @@ def genotype_to_phenotype(rsID, genotype):
 		if line.split('=')[0] == 'summary':
 			summary = line.split('=')[1]
 	return (description, summary)
+
+#Get basic variant call stats about the individual
+#[0]: Homozygous for reference 
+#[1]: Heterozygous
+#[2]: Homozygous for non-reference
+#[3]: Total variant calls
+def get_stats(individual):
+	#Generate all possible chromosomes
+	chromosomes = chromosome_list()
+
+	#Parses each chromosomal vcf file using vcftools to count each statistic
+	homozygous_ref = 0
+	heterozygous = 0
+	homozygous_alt = 0
+	chromosomes = ['X']
+	for chromosome in chromosomes:
+		vcf_file = 'vcf_analyzer/vcf_files/CMS_nonCMS_chr' + str(chromosome) + '.annotated.phased.vcf.gz'
+		output_object = subprocess.Popen(['vcftools', '--gzvcf', vcf_file, '--indv', str(individual), '--hardy', '-c'], stdout=subprocess.PIPE)
+		
+		#Count each occurence of the statistic
+		for line in output_object.stdout:
+			line = line.strip().split('\t')
+			if line[0] == 'CHR':
+				continue
+			stats = line[2].split('/')
+			if int(stats[0]) == 1:
+				homozygous_ref += 1
+			elif int(stats[1]) == 1:
+				heterozygous += 1
+			elif int(stats[2]) == 1:
+				homozygous_alt += 1
+	
+	total = homozygous_ref + heterozygous + homozygous_alt
+	return (homozygous_ref, heterozygous, homozygous_alt, total)
+
+
 
 
 
